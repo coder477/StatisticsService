@@ -1,4 +1,4 @@
-# StatisticsService
+# StatisticsService ![https://travis-ci.org/raj-saxena/StatisticsService](https://travis-ci.org/raj-saxena/StatisticsService.svg?branch=master)
 
 A scalable service that provides statistics for transactions. It takes `timestamp` and `amount` of transaction as json payload eg:
 ```
