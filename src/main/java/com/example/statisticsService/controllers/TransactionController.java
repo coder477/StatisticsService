@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 @RestController
 public class TransactionController {
@@ -17,7 +18,10 @@ public class TransactionController {
 
     @PostMapping("/transactions")
     ResponseEntity<String> addTransaction(@RequestBody Transaction transaction) {
-        transactionService.add(transaction);
-        return new ResponseEntity<>(CREATED);
+        if (transactionService.add(transaction)){
+            return new ResponseEntity<>(CREATED);
+        }
+
+        return new ResponseEntity<>(NO_CONTENT);
     }
 }
