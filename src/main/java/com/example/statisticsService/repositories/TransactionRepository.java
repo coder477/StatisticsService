@@ -1,6 +1,8 @@
 package com.example.statisticsService.repositories;
 
 import com.example.statisticsService.models.Transaction;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -9,11 +11,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.stream.Collectors;
 
 import static java.time.Instant.now;
 import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toList;
 
+@Slf4j
 @Component
 public class TransactionRepository {
     private Long statisticsInterval = 60L;
@@ -44,10 +47,29 @@ public class TransactionRepository {
 
     public List<Transaction> getTransactions() {
         return transactions
-                .tailMap(now().minusSeconds(statisticsInterval).getEpochSecond())
+                .tailMap(getIntervalStartKey())
                 .values()
                 .parallelStream()
                 .flatMap(Collection::parallelStream)
-                .collect(Collectors.toList());
+                .collect(toList());
+    }
+
+    private long getIntervalStartKey() {
+        return now().minusSeconds(statisticsInterval).getEpochSecond();
+    }
+
+    @Scheduled(fixedDelay = 10 * 1000)
+    void removeOld() {
+        final int currentSize = transactions.size();
+        log.info(String.format("Removing old entries if old entries > 0, currentSize=[%d]", currentSize));
+        if (currentSize > 0) {
+            final ConcurrentNavigableMap<Long, List<Transaction>> oldEntries = transactions.headMap(getIntervalStartKey());
+            if (oldEntries.size() > 0) {
+                log.info(String.format("removing [%s]", oldEntries));
+                // Revisit to see if this has performance issues. (Maybe creating a new Map with tailMap?)
+                oldEntries.clear();
+                log.info("Updated size = " + transactions.size());
+            }
+        }
     }
 }
