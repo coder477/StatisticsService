@@ -1,5 +1,6 @@
 package com.example.statisticsService.services;
 
+import com.example.statisticsService.models.Statistics;
 import com.example.statisticsService.models.Transaction;
 import com.example.statisticsService.repositories.TransactionRepository;
 import org.junit.Test;
@@ -9,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static java.time.Instant.now;
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
@@ -31,5 +33,19 @@ public class TransactionServiceTest {
 
         verify(transactionRepository).add(transaction);
         assertThat(isAdded, is(true));
+    }
+
+    @Test
+    public void shouldReturnStatisticsFromTransactions() throws Exception {
+        final Transaction transactionOne = new Transaction(4, now());
+        final Transaction transactionTwo = new Transaction(8, now());
+        when(transactionRepository.getTransactions()).thenReturn(asList(transactionOne, transactionTwo));
+        final Statistics expectedStatistic = new Statistics(12, 8, 4, 2, 6);
+
+        final Statistics actualStatistic = transactionService.getStatistics();
+
+        verify(transactionRepository).getTransactions();
+        assertThat(actualStatistic, is(expectedStatistic));
+
     }
 }

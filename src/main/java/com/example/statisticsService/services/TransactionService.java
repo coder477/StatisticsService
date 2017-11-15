@@ -6,6 +6,10 @@ import com.example.statisticsService.repositories.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.DoubleSummaryStatistics;
+
+import static java.util.stream.Collectors.summarizingDouble;
+
 @Service
 public class TransactionService {
     @Autowired
@@ -16,6 +20,9 @@ public class TransactionService {
     }
 
     public Statistics getStatistics() {
-        return null;
+        final DoubleSummaryStatistics stats = transactionRepository.getTransactions()
+                .parallelStream()
+                .collect(summarizingDouble(Transaction::getAmount));
+        return new Statistics(stats.getSum(), stats.getMax(), stats.getMin(), stats.getCount(), stats.getAverage());
     }
 }

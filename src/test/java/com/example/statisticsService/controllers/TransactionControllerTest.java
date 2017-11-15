@@ -11,8 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.Instant;
-
+import static java.time.Instant.now;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
@@ -33,7 +32,7 @@ public class TransactionControllerTest {
 
     @Test
     public void shouldReturnSuccessForTransactionPostRequest() throws Exception {
-        final Transaction transaction = new Transaction(12.3, Instant.now());
+        final Transaction transaction = new Transaction(12.3, now());
         when(transactionService.add(transaction)).thenReturn(true);
 
         mockMvc.perform(post("/transactions")
@@ -49,7 +48,7 @@ public class TransactionControllerTest {
 
     @Test
     public void shouldReturn204IfTransactionIsOlderThanConfiguredInterval() throws Exception {
-        final Transaction transaction = new Transaction(12.3, Instant.now().minusSeconds(61));
+        final Transaction transaction = new Transaction(12.3, now().minusSeconds(61));
         when(transactionService.add(transaction)).thenReturn(false);
 
         mockMvc.perform(post("/transactions")

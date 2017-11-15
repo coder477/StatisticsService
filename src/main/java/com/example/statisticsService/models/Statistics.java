@@ -9,16 +9,14 @@ public class Statistics {
     private double sum;
     private double max;
     private double min;
-    private int count;
+    private long count;
+    private double average;
 
-    public Statistics(double sum, double max, double min, int count) {
+    public Statistics(double sum, double max, double min, long count, double average) {
         this.sum = sum;
         this.max = max;
         this.min = min;
         this.count = count;
-    }
-
-    public Double getAverage() {
-        return sum / count;
+        this.average = average;
     }
 }

@@ -18,7 +18,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -34,18 +33,15 @@ public class StatisticsControllerTest {
 
     @Test
     public void shouldReturnStatisticsForUploadedTransactions() throws Exception {
-        final Statistics statistics = new Statistics(10.0, 5.4, 1.2, 5);
+        final Statistics statistics = new Statistics(10.0, 5.4, 1.2, 5, 2);
         when(transactionService.getStatistics()).thenReturn(statistics);
-        final String expectedJson = "{ \"sum\": 10.0, \"average\": 2.0, \"max\": 5.4, \"min\": 1.2, \"count\": 5 }";
-        final Statistics expectedStatistics = mapper.readValue(expectedJson, Statistics.class);
 
         final MvcResult result = mockMvc.perform(get("/statistics")
                 .accept(APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("average", is(2.0)))
                 .andReturn();
 
         verify(transactionService).getStatistics();
-        assertThat(mapper.readValue(result.getResponse().getContentAsString(), Statistics.class), is(expectedStatistics));
+        assertThat(mapper.readValue(result.getResponse().getContentAsString(), Statistics.class), is(statistics));
     }
 }
