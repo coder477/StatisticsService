@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.DoubleSummaryStatistics;
 
+import static java.lang.Double.NEGATIVE_INFINITY;
+import static java.lang.Double.POSITIVE_INFINITY;
 import static java.util.stream.Collectors.summarizingDouble;
 
 @Service
@@ -23,6 +25,16 @@ public class TransactionService {
         final DoubleSummaryStatistics stats = transactionRepository.getTransactions()
                 .parallelStream()
                 .collect(summarizingDouble(Transaction::getAmount));
-        return new Statistics(stats.getSum(), stats.getMax(), stats.getMin(), stats.getCount(), stats.getAverage());
+        return new Statistics(stats.getSum(), getMax(stats), getMin(stats), stats.getCount(), stats.getAverage());
+    }
+
+    private double getMax(DoubleSummaryStatistics stats) {
+        final double max = stats.getMax();
+        return NEGATIVE_INFINITY == max ? 0 : max;
+    }
+
+    private double getMin(DoubleSummaryStatistics stats) {
+        final double min = stats.getMin();
+        return POSITIVE_INFINITY == min ? 0 : min;
     }
 }
